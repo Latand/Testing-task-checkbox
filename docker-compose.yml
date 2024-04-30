@@ -1,0 +1,21 @@
+
+services:
+
+  pg_database:
+   image: postgres:15-alpine
+   ports:
+     - "5439:5432" 
+   restart: always
+   volumes:
+     - pgdata:/var/lib/postgresql/data
+   env_file:
+     - '.env'
+   logging:
+     driver: "json-file"
+     options:
+       max-size: "200k"
+       max-file: "10"
+      
+
+volumes:
+  pgdata:
