@@ -82,7 +82,7 @@ Here you can find the list of available endpoints and their respective request a
 
 ### Signup
 
-- Endpoint: `/signup`
+- Endpoint: `/api/v1/signup`
 - Method: POST
 - Request Body:
   - `username` (string): Username for the new user.
@@ -95,7 +95,7 @@ Here you can find the list of available endpoints and their respective request a
 
 ### Login
 
-- Endpoint: `/token`
+- Endpoint: `/api/v1/token`
 - Method: GET
 - Query Parameters:
   - `username` (string): Username for authentication.
@@ -109,7 +109,7 @@ Here you can find the list of available endpoints and their respective request a
 
 ### Create Receipt
 
-- Endpoint: `/receipts/`
+- Endpoint: `/api/v1/receipts/`
 - Method: POST
 - Request Body:
   - `products` (array of objects):
@@ -137,7 +137,7 @@ Here you can find the list of available endpoints and their respective request a
 
 ### Get Receipts
 
-- Endpoint: `/receipts/`
+- Endpoint: `/api/v1/receipts/`
 - Method: GET
 - Query Parameters:
   - `start_date` (datetime, optional): Start date filter for receipts.
@@ -152,7 +152,7 @@ Here you can find the list of available endpoints and their respective request a
 
 ### Get Receipt by ID
 
-- Endpoint: `/receipts/{receipt_id}`
+- Endpoint: `/api/v1/receipts/{receipt_id}`
 - Method: GET
 - Path Parameters:
   - `receipt_id` (integer): ID of the receipt to retrieve.
@@ -161,7 +161,7 @@ Here you can find the list of available endpoints and their respective request a
 
 ### Show Receipt by ID
 
-- Endpoint: `/receipts/show/{receipt_id}/`
+- Endpoint: `/api/v1/receipts/show/{receipt_id}/`
 - Method: GET
 - Path Parameters:
   - `receipt_id` (integer): ID of the receipt to show.
