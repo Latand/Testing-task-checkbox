@@ -1,3 +1,4 @@
+from datetime import date
 from decimal import Decimal
 from fastapi.testclient import TestClient
 import pytest
@@ -46,7 +47,7 @@ def client():
         yield c
 
 
-def test_login(client):
+def get_login(client):
     response = client.post(
         "/api/v1/signup",
         json={
@@ -67,7 +68,7 @@ def test_create_receipt_unauth(client):
 
 
 def test_create_receipt_success(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.post(
         "/api/v1/receipts",
         json={"products": [valid_product], "payment": valid_payment_cash},
@@ -78,7 +79,7 @@ def test_create_receipt_success(client):
 
 
 def test_create_receipt_invalid_product(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.post(
         "/api/v1/receipts",
         json={"products": [invalid_product], "payment": valid_payment_cash},
@@ -89,7 +90,7 @@ def test_create_receipt_invalid_product(client):
 
 
 def test_create_receipt_invalid_payment(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.post(
         "/api/v1/receipts",
         json={"products": [valid_product], "payment": invalid_payment},
@@ -100,7 +101,7 @@ def test_create_receipt_invalid_payment(client):
 
 
 def test_create_receipt_missing_data(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.post(
         "/api/v1/receipts", json={}, headers={"Authorization": f"Bearer {token}"}
     )
@@ -109,7 +110,7 @@ def test_create_receipt_missing_data(client):
 
 
 def test_create_receipt_invalid_data(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.post(
         "/api/v1/receipts",
         json={"products": [], "payment": {}},
@@ -120,7 +121,7 @@ def test_create_receipt_invalid_data(client):
 
 
 def test_create_receipt_not_enough_money(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.post(
         "/api/v1/receipts",
         json={"products": [valid_product], "payment": not_enough_money},
@@ -132,7 +133,7 @@ def test_create_receipt_not_enough_money(client):
 
 
 def test_multiple_products(client):
-    token = test_login(client)
+    token = get_login(client)
     products = [
         {
             "name": "Product 1",
@@ -164,7 +165,7 @@ def test_multiple_products(client):
 
 
 def test_many_products_large_names(client):
-    token = test_login(client)
+    token = get_login(client)
     products = [
         {
             "name": "Product 1",
@@ -200,7 +201,7 @@ def test_many_products_large_names(client):
 
 
 def test_get_receipts(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.get(
         "/api/v1/receipts", headers={"Authorization": f"Bearer {token}"}
     )
@@ -211,21 +212,32 @@ def test_get_receipts(client):
 
 
 def test_get_receipts_by_date(client):
-    token = test_login(client)
+    token = get_login(client)
+    today = date.today()
+    tomorrow = today.replace(day=today.day + 1)
+
     response = client.get(
-        "/api/v1/receipts?start_date=2024-05-01&end_date=2024-06-01",
+        "/api/v1/receipts",
+        params={
+            "start_date": today.strftime("%Y-%m-%d"),
+            "end_date": tomorrow.strftime("%Y-%m-%d"),
+        },
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 200
     receipts = response.json()
     assert len(receipts) > 0
-    assert all("2024-05-01" in receipt["created_at"] for receipt in receipts)
+    assert all(
+        today.strftime("%Y-%m-%d") in receipt["created_at"] for receipt in receipts
+    )
 
 
 def test_get_receipts_by_min_total(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.get(
-        "/api/v1/receipts?min_total=40", headers={"Authorization": f"Bearer {token}"}
+        "/api/v1/receipts",
+        params={"min_total": 40},
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 200
     receipts = response.json()
@@ -234,9 +246,11 @@ def test_get_receipts_by_min_total(client):
 
 
 def test_get_receipts_by_max_total(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.get(
-        "/api/v1/receipts?max_total=30", headers={"Authorization": f"Bearer {token}"}
+        "/api/v1/receipts",
+        params={"max_total": 30},
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 200
     receipts = response.json()
@@ -245,9 +259,10 @@ def test_get_receipts_by_max_total(client):
 
 
 def test_get_receipts_by_payment_type_cash(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.get(
-        "/api/v1/receipts?payment_type=cash",
+        "/api/v1/receipts",
+        params={"payment_type": "cash"},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 200
@@ -257,9 +272,10 @@ def test_get_receipts_by_payment_type_cash(client):
 
 
 def test_get_receipts_by_payment_type_card(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.get(
-        "/api/v1/receipts?payment_type=card",
+        "/api/v1/receipts",
+        params={"payment_type": "card"},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 200
@@ -269,9 +285,10 @@ def test_get_receipts_by_payment_type_card(client):
 
 
 def test_pagination(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.get(
-        "/api/v1/receipts?limit=2&offset=1",
+        "/api/v1/receipts",
+        params={"limit": 2, "offset": 1},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 200
@@ -280,7 +297,7 @@ def test_pagination(client):
 
 
 def test_get_receipts_no_filters(client):
-    token = test_login(client)
+    token = get_login(client)
     response = client.get(
         "/api/v1/receipts", headers={"Authorization": f"Bearer {token}"}
     )
@@ -298,7 +315,9 @@ def test_get_receipt_by_id(client):
 def test_show_receipt_length(client):
     lengths = [20, 30, 40, 50]
     for length in lengths:
-        response = client.get(f"/api/v1/receipts/show/3?max_characters={length}")
+        response = client.get(
+            "/api/v1/receipts/show/3", params={"max_characters": length}
+        )
         assert response.status_code == 200
         response_text = response.text
 

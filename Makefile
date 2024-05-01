@@ -31,3 +31,9 @@ restart:
 .PHONY: migrate
 migrate:
 	docker-compose exec api alembic upgrade head
+
+
+.PHONY: test
+test:
+	pytest tests/test_auth.py
+	pytest tests/test_receipts.py

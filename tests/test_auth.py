@@ -1,13 +1,20 @@
 from fastapi.testclient import TestClient
+import pytest
 import os
 
 from api.app import app
 
-client = TestClient(app)
 os.environ["DB_HOST"] = "localhost:5439"
 
 
-def test_signup_for_access_token():
+@pytest.fixture(scope="module")
+def client():
+    with TestClient(app=app) as c:
+        yield c
+
+
+
+def test_signup_for_access_token(client):
     response = client.post(
         "/api/v1/signup",
         json={
@@ -21,7 +28,7 @@ def test_signup_for_access_token():
     assert response.json()["token_type"] == "bearer"
 
 
-def test_login_for_access_token():
+def test_login_for_access_token(client):
     response = client.get(
         "/api/v1/token", params={"username": "latand", "password": "mysecretpassword"}
     )
@@ -30,7 +37,7 @@ def test_login_for_access_token():
     assert response.json()["token_type"] == "bearer"
 
 
-def test_login_for_access_token_wrong_password():
+def test_login_for_access_token_wrong_password(client):
     response = client.get(
         "/api/v1/token", params={"username": "latand", "password": "wrongpassword"}
     )
@@ -38,7 +45,7 @@ def test_login_for_access_token_wrong_password():
     assert "detail" in response.json()
 
 
-def test_login_for_access_token_no_username():
+def test_login_for_access_token_no_username(client):
     response = client.get("/api/v1/token", params={"password": "mysecretpassword"})
     assert response.status_code == 422
     assert "detail" in response.json()
