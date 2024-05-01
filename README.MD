@@ -17,6 +17,26 @@ git clone https://github.com/Latand/Testing-task-checkbox
 cd Testing-task-checkbox
 ```
 
+
+## Environment Setup
+
+Copy the `.env.dist` file to `.env` and update the environment variables with your specific values:
+
+```bash
+cp .env.dist .env
+```
+
+Edit the `.env` file and add the following environment variables:
+
+```
+POSTGRES_USER=someusername
+POSTGRES_PASSWORD=postgres_pass12345
+POSTGRES_DB=bot
+DB_HOST=pg_database
+
+SECRET_KEY=your_secret_key
+```
+
 ## Running the Project
 
 To build and run the project, execute:
