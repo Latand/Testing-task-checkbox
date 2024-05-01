@@ -1,7 +1,7 @@
 
 .PHONY: build
 build:
-	docker-compose up --build
+	docker-compose up --build -d
 
 
 .PHONY: up
@@ -37,3 +37,9 @@ migrate:
 test:
 	pytest tests/test_auth.py
 	pytest tests/test_receipts.py
+
+
+.PHONY: install
+install:
+	pip install poetry
+	poetry install
