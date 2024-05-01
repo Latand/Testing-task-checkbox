@@ -175,15 +175,18 @@ def format_text(
     words = input_text.split()
     formatted_lines = []
     current_line = ""
-    right_spacing = len(right_text) + 5 if right_text else 5
+    right_spacing = len(right_text) + 5 if right_text else 0
+
+    # Update max_characters based on right_text presence
+    max_line_length = max_characters - right_spacing if right_text else max_characters
 
     for word in words:
         # Check if the word is too long and needs truncation
-        if len(word) > max_characters:
-            word = word[: max_characters - right_spacing] + "..."
+        if len(word) > max_line_length:
+            word = word[: max_line_length - right_spacing] + "..."
 
         # Add word to the current line if it fits
-        if len(current_line) + len(word) + 1 <= max_characters:
+        if len(current_line) + len(word) + 1 <= max_line_length:
             current_line += word + " "
         else:
             # If the word doesn't fit, finalize the current line and start a new one
