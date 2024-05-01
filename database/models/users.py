@@ -1,6 +1,5 @@
-from sqlalchemy.orm import Mapped
 from sqlalchemy import BIGINT, String
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from database.models.base import Base, TableNameMixin, TimestampMixin
 

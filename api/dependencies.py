@@ -1,11 +1,9 @@
 from functools import lru_cache
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from config import Config, load_config
-
-
 from database.repo.requests import RequestsRepo
 
 

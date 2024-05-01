@@ -1,6 +1,6 @@
-from .receipts import Receipt, ReceiptItem, Payment
-from .users import User
 from .base import Base
+from .receipts import Payment, Receipt, ReceiptItem
+from .users import User
 
 __all__ = [
     "Base",

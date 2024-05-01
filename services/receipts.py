@@ -1,12 +1,9 @@
 from datetime import datetime
 from decimal import Decimal
+
 from api.exceptions import NotEnoughMoney
-from api.models import (
-    CreateReceiptRequest,
-    CreateReceiptResponse,
-    Payment,
-    ProductResponse,
-)
+from api.models import (CreateReceiptRequest, CreateReceiptResponse, Payment,
+                        ProductResponse)
 from database.models.receipts import PaymentType
 from database.repo.requests import RequestsRepo
 

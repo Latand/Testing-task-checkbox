@@ -1,17 +1,16 @@
 from datetime import datetime
 from decimal import Decimal
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Response
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
 from api.dependencies import get_repository
 from api.exceptions import NotEnoughMoney
+from api.models import CreateReceiptRequest, CreateReceiptResponse
+from database.models import User
 from database.models.receipts import PaymentType
 from database.repo.requests import RequestsRepo
 from services.auth import get_current_user
-
-
-from api.models import CreateReceiptRequest, CreateReceiptResponse
-from database.models import User
 from services.receipts import ReceiptService, generate_receipt_text
 
 router = APIRouter(prefix="/receipts")

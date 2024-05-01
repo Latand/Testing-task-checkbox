@@ -1,8 +1,9 @@
 import datetime
-from sqlalchemy.orm import Mapped, mapped_column, declared_attr
+
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 from sqlalchemy.orm.decl_api import DeclarativeBase
-from sqlalchemy.sql.sqltypes import Integer, TIMESTAMP
 from sqlalchemy.sql import func
+from sqlalchemy.sql.sqltypes import TIMESTAMP, Integer
 from typing_extensions import Annotated
 
 

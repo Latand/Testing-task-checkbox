@@ -1,7 +1,8 @@
 from decimal import Decimal
 
 from sqlalchemy import insert
-from database.models.receipts import PaymentType, Payment
+
+from database.models.receipts import Payment, PaymentType
 from database.repo.base import BaseRepo
 
 

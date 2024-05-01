@@ -3,8 +3,9 @@ from decimal import Decimal
 
 from sqlalchemy import insert, select
 from sqlalchemy.orm import selectinload
+
 from api.models import ProductResponse
-from database.models.receipts import PaymentType, Receipt, ReceiptItem, Payment
+from database.models.receipts import Payment, PaymentType, Receipt, ReceiptItem
 from database.repo.base import BaseRepo
 
 

@@ -1,10 +1,11 @@
+import os
 from datetime import date
 from decimal import Decimal
-from fastapi.testclient import TestClient
-import pytest
-from api.app import app
-import os
 
+import pytest
+from fastapi.testclient import TestClient
+
+from api.app import app
 
 os.environ["DB_HOST"] = "localhost:5439"
 os.environ["TESING"] = "1"

@@ -1,9 +1,10 @@
 from decimal import Decimal
-from typing import Optional
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import DECIMAL, ForeignKey, String
-
 from enum import Enum
+from typing import Optional
+
+from sqlalchemy import DECIMAL, ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from database.models.base import Base, TableNameMixin, TimestampMixin, int_pk
 
 
