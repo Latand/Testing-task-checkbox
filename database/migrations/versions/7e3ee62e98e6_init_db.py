@@ -1,8 +1,8 @@
 """init db
 
-Revision ID: 0dc01a31b63a
+Revision ID: 7e3ee62e98e6
 Revises: 
-Create Date: 2024-05-01 09:56:29.513353
+Create Date: 2024-05-01 12:49:13.106611
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '0dc01a31b63a'
+revision: str = '7e3ee62e98e6'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -42,7 +42,7 @@ def upgrade() -> None:
     op.create_table('payments',
     sa.Column('payment_id', sa.Integer(), nullable=False),
     sa.Column('receipt_id', sa.Integer(), nullable=False),
-    sa.Column('type', sa.String(length=64), nullable=False),
+    sa.Column('type', sa.Enum('CASH', 'CARD', name='paymenttype'), nullable=False),
     sa.Column('amount', sa.DECIMAL(precision=16, scale=4), nullable=False),
     sa.Column('created_at', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.ForeignKeyConstraint(['receipt_id'], ['receipts.receipt_id'], ),
@@ -56,7 +56,7 @@ def upgrade() -> None:
     sa.Column('price_per_unit', sa.DECIMAL(precision=16, scale=4), nullable=False),
     sa.Column('quantity', sa.DECIMAL(precision=10, scale=4), nullable=False),
     sa.Column('total_price', sa.DECIMAL(precision=16, scale=4), nullable=False),
-    sa.Column('comment', sa.String(), nullable=False),
+    sa.Column('comment', sa.String(), nullable=True),
     sa.ForeignKeyConstraint(['receipt_id'], ['receipts.receipt_id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('item_id')
     )

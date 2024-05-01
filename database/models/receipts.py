@@ -1,6 +1,6 @@
 from decimal import Decimal
 from typing import Optional
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import DECIMAL, ForeignKey, String
 
 from enum import Enum
@@ -20,6 +20,11 @@ class Receipt(Base, TableNameMixin, TimestampMixin):
     total: Mapped[Decimal] = mapped_column(DECIMAL(16, 4))
     rest: Mapped[Decimal] = mapped_column(DECIMAL(16, 4))
 
+    items: Mapped[list["ReceiptItem"]] = relationship(
+        "ReceiptItem", back_populates="receipt"
+    )
+    payment: Mapped["Payment"] = relationship("Payment", back_populates="receipt")
+
 
 class ReceiptItem(Base, TableNameMixin):
     item_id: Mapped[int_pk]
@@ -33,10 +38,14 @@ class ReceiptItem(Base, TableNameMixin):
     total_price: Mapped[Decimal] = mapped_column(DECIMAL(16, 4))
     comment: Mapped[Optional[str]]
 
+    receipt: Mapped["Receipt"] = relationship("Receipt", back_populates="items")
+
 
 class Payment(Base, TableNameMixin, TimestampMixin):
     payment_id: Mapped[int_pk]
     receipt_id: Mapped[int] = mapped_column(ForeignKey("receipts.receipt_id"))
 
-    type: Mapped[str] = mapped_column(String(64))
+    type: Mapped[PaymentType]
     amount: Mapped[Decimal] = mapped_column(DECIMAL(16, 4))
+
+    receipt: Mapped["Receipt"] = relationship("Receipt", back_populates="payment")

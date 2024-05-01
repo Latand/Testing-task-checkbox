@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from api.models import SignupRequest, Token
 from api.dependencies import get_config, get_repository
 from config import Config
-from database.requests.requests import RequestsRepo
+from database.repo.requests import RequestsRepo
 from services.auth import authenticate_user, create_access_token, get_password_hash
 
 

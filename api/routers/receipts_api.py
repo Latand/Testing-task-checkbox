@@ -1,8 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import datetime
+from decimal import Decimal
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from api.dependencies import get_repository
 from api.exceptions import NotEnoughMoney
-from database.requests.requests import RequestsRepo
+from database.models.receipts import PaymentType
+from database.repo.requests import RequestsRepo
 from services.auth import get_current_user
 
 
@@ -10,18 +14,18 @@ from api.models import CreateReceiptRequest, CreateReceiptResponse
 from database.models import User
 from services.receipts import ReceiptService
 
-router = APIRouter()
+router = APIRouter(prefix="/receipts")
 
 
 @router.post(
-    "/receipts",
+    "/",
     response_model=CreateReceiptResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_receipt(
     receipt_request: CreateReceiptRequest,
-    user: User = Depends(get_current_user),
-    repo: RequestsRepo = Depends(get_repository),
+    user: Annotated[User, Depends(get_current_user)],
+    repo: Annotated[RequestsRepo, Depends(get_repository)],
 ):
     receipt_service = ReceiptService(repo)
     try:
@@ -32,3 +36,64 @@ async def create_receipt(
         )
 
     return response
+
+
+@router.get("/", response_model=list[CreateReceiptResponse])
+async def get_receipts(
+    user: Annotated[User, Depends(get_current_user)],
+    repo: Annotated[RequestsRepo, Depends(get_repository)],
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    min_total: Decimal | None = None,
+    max_total: Decimal | None = None,
+    payment_type: PaymentType | None = None,
+    limit: int = Query(10, gt=0),
+    offset: int = Query(0, ge=0),
+):
+    receipt_service = ReceiptService(repo)
+    result = await receipt_service.get_receipts(
+        user_id=user.user_id,
+        start_date=start_date,
+        end_date=end_date,
+        min_total=min_total,
+        max_total=max_total,
+        payment_type=payment_type,
+        offset=offset,
+        limit=limit,
+    )
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Receipts not found"
+        )
+
+    return result
+
+
+@router.get("/{receipt_id}", response_model=CreateReceiptResponse)
+async def get_receipt_by_id(
+    receipt_id: int,
+    user: Annotated[User, Depends(get_current_user)],
+    repo: Annotated[RequestsRepo, Depends(get_repository)],
+):
+    receipt_service = ReceiptService(repo)
+    result = await receipt_service.get_receipt_by_id(user.user_id, receipt_id)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Receipt not found"
+        )
+
+    return result
+
+
+@router.get("/show/{receipt_id}/")
+async def show_receipt_by_id(
+    receipt_id: int,
+    user: Annotated[User, Depends(get_current_user)],
+    repo: Annotated[RequestsRepo, Depends(get_repository)],
+):
+    receipt_service = ReceiptService(repo)
+    result = await receipt_service.get_receipt_by_id(user.user_id, receipt_id)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Receipt not found"
+        )

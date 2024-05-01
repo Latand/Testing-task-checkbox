@@ -2,8 +2,9 @@ from dataclasses import dataclass
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.requests.receipts import ReceiptRepo
-from database.requests.users import UserRepo
+from database.repo.payments import PaymentsRepo
+from database.repo.receipts import ReceiptRepo
+from database.repo.users import UserRepo
 
 
 @dataclass
@@ -17,3 +18,7 @@ class RequestsRepo:
     @property
     def receipts(self) -> ReceiptRepo:
         return ReceiptRepo(self.session)
+
+    @property
+    def payments(self) -> PaymentsRepo:
+        return PaymentsRepo(self.session)

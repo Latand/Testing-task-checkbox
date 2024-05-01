@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 
 from database.models import User
-from database.requests.base import BaseRepo
+from database.repo.base import BaseRepo
 
 
 class UserRepo(BaseRepo):

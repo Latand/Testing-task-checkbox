@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from config import Config, load_config
 
 
-from database.requests.requests import RequestsRepo
+from database.repo.requests import RequestsRepo
 
 
 @lru_cache

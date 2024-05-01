@@ -1,4 +1,4 @@
-import asyncio
+from decimal import Decimal
 from fastapi.testclient import TestClient
 import pytest
 from api.app import app
@@ -156,3 +156,90 @@ def test_multiple_products(client):
     assert len(response.json()["products"]) == 2
     assert response.json()["total"] == "41.250"
     assert response.json()["rest"] == "9958.750"
+
+
+def test_get_receipts(client):
+    token = test_login(client)
+    response = client.get(
+        "/api/v1/receipts", headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 200
+    receipts = response.json()
+    assert isinstance(response.json(), list)
+    assert len(receipts) > 0
+
+
+def test_get_receipts_by_date(client):
+    token = test_login(client)
+    response = client.get(
+        "/api/v1/receipts?start_date=2024-05-01&end_date=2024-06-01",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+    receipts = response.json()
+    assert len(receipts) > 0
+    assert all("2024-05-01" in receipt["created_at"] for receipt in receipts)
+
+
+def test_get_receipts_by_min_total(client):
+    token = test_login(client)
+    response = client.get(
+        "/api/v1/receipts?min_total=40", headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 200
+    receipts = response.json()
+    assert len(receipts) > 0
+    assert all(Decimal(receipt["total"]) >= 40 for receipt in receipts)
+
+
+def test_get_receipts_by_max_total(client):
+    token = test_login(client)
+    response = client.get(
+        "/api/v1/receipts?max_total=30", headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 200
+    receipts = response.json()
+    assert len(receipts) > 0
+    assert all(Decimal(receipt["total"]) <= 30 for receipt in receipts)
+
+
+def test_get_receipts_by_payment_type(client):
+    token = test_login(client)
+    response = client.get(
+        "/api/v1/receipts?payment_type=cash",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+    receipts = response.json()
+    assert len(receipts) > 0
+    assert all(receipt["payment"]["type"] == "cash" for receipt in receipts)
+
+
+def test_pagination(client):
+    token = test_login(client)
+    response = client.get(
+        "/api/v1/receipts?limit=2&offset=1",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+    receipts = response.json()
+    assert len(receipts) <= 2
+
+
+def test_get_receipts_no_filters(client):
+    token = test_login(client)
+    response = client.get(
+        "/api/v1/receipts", headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 200
+    receipts = response.json()
+    assert len(receipts) > 0
+
+
+def test_get_receipt_by_id(client):
+    token = test_login(client)
+    response = client.get(
+        "/api/v1/receipts/3", headers={"Authorization": f"Bearer {token}"}
+    )
+    assert response.status_code == 200
+    assert "receipt_id" in response.json()

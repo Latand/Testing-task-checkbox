@@ -9,7 +9,7 @@ from passlib.context import CryptContext
 from api.dependencies import get_config, get_repository
 from config import Config
 from database.models.users import User
-from database.requests.requests import RequestsRepo
+from database.repo.requests import RequestsRepo
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
