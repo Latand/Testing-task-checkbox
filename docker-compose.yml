@@ -16,6 +16,27 @@ services:
        max-size: "200k"
        max-file: "10"
       
+  
+  api:
+    image: "receipts-api"
+    stop_signal: SIGINT
+    working_dir: /app
+    build:
+      context: .
+      dockerfile: ./docker/api.Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    restart: always
+    env_file:
+      - ".env"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
 
 volumes:
   pgdata:
