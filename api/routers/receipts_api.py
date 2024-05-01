@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from api.dependencies import get_repository
+from api.exceptions import NotEnoughMoney
 from database.requests.requests import RequestsRepo
 from services.auth import get_current_user
 
 
 from api.models import CreateReceiptRequest, CreateReceiptResponse
 from database.models import User
+from services.receipts import ReceiptService
 
 router = APIRouter()
 
@@ -21,8 +23,12 @@ async def create_receipt(
     user: User = Depends(get_current_user),
     repo: RequestsRepo = Depends(get_repository),
 ):
-    receipt = await repo.receipts.create_receipt(
-        user_id=user.user_id, receipt_data=receipt_request
-    )
+    receipt_service = ReceiptService(repo)
+    try:
+        response = await receipt_service.create_receipt(user.user_id, receipt_request)
+    except NotEnoughMoney:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Not enough money"
+        )
 
-    return receipt
+    return response

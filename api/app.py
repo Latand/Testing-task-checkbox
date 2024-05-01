@@ -3,7 +3,7 @@ import logging
 from fastapi import FastAPI, APIRouter
 from starlette.middleware.cors import CORSMiddleware
 
-from api import handlers
+from api import routers
 
 app = FastAPI()
 prefix_router = APIRouter(prefix="/api/v1")
@@ -28,8 +28,8 @@ logging.basicConfig(
 
 
 for router in [
-    handlers.auth_api.router,
-    handlers.receipts_api.router,
+    routers.auth_api.router,
+    routers.receipts_api.router,
 ]:
     prefix_router.include_router(router)
 

@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import DECIMAL, ForeignKey, String
 
@@ -30,7 +31,7 @@ class ReceiptItem(Base, TableNameMixin):
     price_per_unit: Mapped[Decimal] = mapped_column(DECIMAL(16, 4))
     quantity: Mapped[Decimal] = mapped_column(DECIMAL(10, 4))
     total_price: Mapped[Decimal] = mapped_column(DECIMAL(16, 4))
-    comment: Mapped[str]
+    comment: Mapped[Optional[str]]
 
 
 class Payment(Base, TableNameMixin, TimestampMixin):

@@ -12,7 +12,8 @@ class Token(BaseModel):
 class Product(BaseModel):
     name: str
     price: condecimal(gt=0, max_digits=16, decimal_places=2)  # type: ignore
-    quantity: condecimal(gt=0, max_digits=12, decimal_places=3)  # type: ignore
+    quantity: condecimal(gt=0, max_digits=10, decimal_places=3)  # type: ignore
+    comment: str | None = None
 
 
 class Payment(BaseModel):
@@ -30,7 +31,7 @@ class ProductResponse(Product):
 
 
 class CreateReceiptResponse(BaseModel):
-    id: int
+    receipt_id: int
     products: list[ProductResponse]
     payment: Payment
     total: condecimal(gt=0, max_digits=16, decimal_places=2)  # type: ignore
