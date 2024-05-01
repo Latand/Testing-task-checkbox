@@ -26,6 +26,7 @@ class Receipt(Base, TableNameMixin, TimestampMixin):
         "ReceiptItem", back_populates="receipt"
     )
     payment: Mapped["Payment"] = relationship("Payment", back_populates="receipt")
+    user: Mapped["User"] = relationship("User", back_populates="receipts")
 
 
 class ReceiptItem(Base, TableNameMixin):

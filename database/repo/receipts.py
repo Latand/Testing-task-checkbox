@@ -88,6 +88,7 @@ class ReceiptRepo(BaseRepo):
             select(Receipt)
             .options(selectinload(Receipt.payment))
             .options(selectinload(Receipt.items))
+            .options(selectinload(Receipt.user))
             .where(
                 Receipt.receipt_id == receipt_id,
             )

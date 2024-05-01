@@ -39,6 +39,8 @@ class CreateReceiptResponse(BaseModel):
     rest: condecimal(ge=0, max_digits=16, decimal_places=2)  # type: ignore
     created_at: str
 
+    user_full_name: str | None = None
+
 
 class SignupRequest(BaseModel):
     username: str

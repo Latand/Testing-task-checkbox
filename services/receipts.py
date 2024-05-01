@@ -2,8 +2,12 @@ from datetime import datetime
 from decimal import Decimal
 
 from api.exceptions import NotEnoughMoney
-from api.models import (CreateReceiptRequest, CreateReceiptResponse, Payment,
-                        ProductResponse)
+from api.models import (
+    CreateReceiptRequest,
+    CreateReceiptResponse,
+    Payment,
+    ProductResponse,
+)
 from database.models.receipts import PaymentType
 from database.repo.requests import RequestsRepo
 
@@ -120,6 +124,7 @@ class ReceiptService:
             total=receipt.total,
             comment=receipt.comment,
             rest=receipt.rest,
+            user_full_name=receipt.user.full_name,
             created_at=receipt.created_at.strftime("%Y-%m-%d %H:%M:%S"),
         )
 
@@ -128,7 +133,8 @@ def generate_receipt_text(receipt: CreateReceiptResponse, max_characters: int) -
     block_divider = "=" * max_characters + "\n"
     items_divider = "-" * max_characters + "\n"
 
-    text = block_divider
+    text = receipt.user_full_name.center(max_characters) + "\n"
+    text += block_divider
 
     items = [
         format_number(product.quantity)
