@@ -197,9 +197,18 @@ def format_text(
     if current_line:
         formatted_lines.append(current_line.rstrip())
 
-    if right_text:
-        formatted_lines[-1] = (
-            f"{formatted_lines[-1].ljust(max_characters - len(right_text))}{right_text}"
-        )
+    # Add right_text to the last line, ensuring it does not exceed max_characters
+    if right_text and formatted_lines:
+        last_line = formatted_lines[-1]
+        space_for_right_text = max_characters - len(last_line) - len(right_text)
+        if space_for_right_text >= 0:
+            # Right_text fits in the remaining space
+            formatted_lines[-1] = (
+                f"{last_line}{right_text.rjust(space_for_right_text + len(right_text))}"
+            )
+        else:
+            # Not enough space, truncate last_line to fit right_text
+            trimmed_line_length = max_characters - len(right_text) - 3  # 3 for ellipsis
+            formatted_lines[-1] = f"{last_line[:trimmed_line_length]}...{right_text}"
 
     return "\n".join(formatted_lines) + "\n"
