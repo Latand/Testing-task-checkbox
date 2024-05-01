@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from api.exceptions import NotEnoughMoney
 from api.models import (
@@ -57,8 +58,8 @@ class ReceiptService:
     async def get_receipts(
         self,
         user_id: int,
-        start_date: str | None = None,
-        end_date: str | None = None,
+        start_date: datetime | None = None,
+        end_date: datetime | None = None,
         min_total: Decimal | None = None,
         max_total: Decimal | None = None,
         payment_type: PaymentType | None = None,
