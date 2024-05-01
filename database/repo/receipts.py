@@ -9,10 +9,12 @@ from database.repo.base import BaseRepo
 
 
 class ReceiptRepo(BaseRepo):
-    async def create_receipt(self, user_id: int, total: Decimal, rest: Decimal):
+    async def create_receipt(
+        self, user_id: int, total: Decimal, rest: Decimal, comment: str | None = None
+    ):
         result = await self.session.execute(
             insert(Receipt)
-            .values(user_id=user_id, total=total, rest=rest)
+            .values(user_id=user_id, total=total, rest=rest, comment=comment)
             .returning(Receipt)
         )
         return result.scalar_one()
@@ -29,7 +31,6 @@ class ReceiptRepo(BaseRepo):
                         price_per_unit=product.price,
                         quantity=product.quantity,
                         total_price=product.total,
-                        comment=product.comment,
                     )
                     for product in products
                 ]
@@ -81,13 +82,12 @@ class ReceiptRepo(BaseRepo):
 
         return result.all()
 
-    async def get_receipt_by_id(self, user_id: int, receipt_id: int):
+    async def get_receipt_by_id(self, receipt_id: int):
         result = await self.session.execute(
             select(Receipt)
             .options(selectinload(Receipt.payment))
             .options(selectinload(Receipt.items))
             .where(
-                Receipt.user_id == user_id,
                 Receipt.receipt_id == receipt_id,
             )
         )

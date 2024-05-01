@@ -13,7 +13,6 @@ class Product(BaseModel):
     name: str
     price: condecimal(gt=0, max_digits=16, decimal_places=2)  # type: ignore
     quantity: condecimal(gt=0, max_digits=10, decimal_places=3)  # type: ignore
-    comment: str | None = None
 
 
 class Payment(BaseModel):
@@ -24,6 +23,7 @@ class Payment(BaseModel):
 class CreateReceiptRequest(BaseModel):
     products: list[Product]
     payment: Payment
+    comment: str | None = None
 
 
 class ProductResponse(Product):
@@ -34,6 +34,7 @@ class CreateReceiptResponse(BaseModel):
     receipt_id: int
     products: list[ProductResponse]
     payment: Payment
+    comment: str | None = None
     total: condecimal(gt=0, max_digits=16, decimal_places=2)  # type: ignore
     rest: condecimal(ge=0, max_digits=16, decimal_places=2)  # type: ignore
     created_at: str

@@ -19,6 +19,7 @@ class Receipt(Base, TableNameMixin, TimestampMixin):
     )
     total: Mapped[Decimal] = mapped_column(DECIMAL(16, 4))
     rest: Mapped[Decimal] = mapped_column(DECIMAL(16, 4))
+    comment: Mapped[Optional[str]]
 
     items: Mapped[list["ReceiptItem"]] = relationship(
         "ReceiptItem", back_populates="receipt"
@@ -36,7 +37,6 @@ class ReceiptItem(Base, TableNameMixin):
     price_per_unit: Mapped[Decimal] = mapped_column(DECIMAL(16, 4))
     quantity: Mapped[Decimal] = mapped_column(DECIMAL(10, 4))
     total_price: Mapped[Decimal] = mapped_column(DECIMAL(16, 4))
-    comment: Mapped[Optional[str]]
 
     receipt: Mapped["Receipt"] = relationship("Receipt", back_populates="items")
 

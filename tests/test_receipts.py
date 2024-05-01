@@ -12,18 +12,20 @@ valid_product = {
     "name": "Product 1",
     "price": "10.50",
     "quantity": "2.5",
-    "comment": "Sample comment",
 }
 
 invalid_product = {
     "name": "Product 2",
     "price": "10.50",
     "quantity": "-2.5",
-    "comment": None,
 }
 
-valid_payment = {
+valid_payment_cash = {
     "type": "cash",
+    "amount": "10000.00",
+}
+valid_payment_card = {
+    "type": "card",
     "amount": "10000.00",
 }
 
@@ -59,7 +61,7 @@ def test_login(client):
 def test_create_receipt_unauth(client):
     response = client.post(
         "/api/v1/receipts",
-        json={"products": [valid_product], "payment": valid_payment},
+        json={"products": [valid_product], "payment": valid_payment_cash},
     )
     assert response.status_code == 401
 
@@ -68,7 +70,7 @@ def test_create_receipt_success(client):
     token = test_login(client)
     response = client.post(
         "/api/v1/receipts",
-        json={"products": [valid_product], "payment": valid_payment},
+        json={"products": [valid_product], "payment": valid_payment_cash},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 201
@@ -79,7 +81,7 @@ def test_create_receipt_invalid_product(client):
     token = test_login(client)
     response = client.post(
         "/api/v1/receipts",
-        json={"products": [invalid_product], "payment": valid_payment},
+        json={"products": [invalid_product], "payment": valid_payment_cash},
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 422
@@ -136,19 +138,21 @@ def test_multiple_products(client):
             "name": "Product 1",
             "price": "10.50",
             "quantity": "2.5",
-            "comment": "Sample comment",
         },
         {
             "name": "Product 2",
             "price": "5.00",
             "quantity": "3",
-            "comment": "Another comment",
         },
     ]
 
     response = client.post(
         "/api/v1/receipts",
-        json={"products": products, "payment": valid_payment},
+        json={
+            "products": products,
+            "payment": valid_payment_cash,
+            "comment": "Testing",
+        },
         headers={"Authorization": f"Bearer {token}"},
     )
     assert response.status_code == 201
@@ -156,6 +160,43 @@ def test_multiple_products(client):
     assert len(response.json()["products"]) == 2
     assert response.json()["total"] == "41.250"
     assert response.json()["rest"] == "9958.750"
+    assert response.json()["comment"] == "Testing"
+
+
+def test_many_products_large_names(client):
+    token = test_login(client)
+    products = [
+        {
+            "name": "Product 1",
+            "price": "10.50",
+            "quantity": "2.5",
+        },
+        {
+            "name": "Product 2 " * 2,
+            "price": "5.00",
+            "quantity": "3",
+        },
+        {
+            "name": "Product 3 " * 3,
+            "price": "7.00",
+            "quantity": "10",
+        },
+        {
+            "name": "Product 4" * 4,
+            "price": "3.50",
+            "quantity": "5",
+        },
+    ]
+
+    response = client.post(
+        "/api/v1/receipts",
+        json={"products": products, "payment": valid_payment_card, "comment": "Test"},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 201
+    assert "receipt_id" in response.json()
+    assert len(response.json()["products"]) == 4
+    assert response.json()["comment"] == "Test"
 
 
 def test_get_receipts(client):
@@ -203,7 +244,7 @@ def test_get_receipts_by_max_total(client):
     assert all(Decimal(receipt["total"]) <= 30 for receipt in receipts)
 
 
-def test_get_receipts_by_payment_type(client):
+def test_get_receipts_by_payment_type_cash(client):
     token = test_login(client)
     response = client.get(
         "/api/v1/receipts?payment_type=cash",
@@ -213,6 +254,18 @@ def test_get_receipts_by_payment_type(client):
     receipts = response.json()
     assert len(receipts) > 0
     assert all(receipt["payment"]["type"] == "cash" for receipt in receipts)
+
+
+def test_get_receipts_by_payment_type_card(client):
+    token = test_login(client)
+    response = client.get(
+        "/api/v1/receipts?payment_type=card",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert response.status_code == 200
+    receipts = response.json()
+    assert len(receipts) > 0
+    assert all(receipt["payment"]["type"] == "card" for receipt in receipts)
 
 
 def test_pagination(client):
@@ -237,9 +290,17 @@ def test_get_receipts_no_filters(client):
 
 
 def test_get_receipt_by_id(client):
-    token = test_login(client)
-    response = client.get(
-        "/api/v1/receipts/3", headers={"Authorization": f"Bearer {token}"}
-    )
+    response = client.get("/api/v1/receipts/3")
     assert response.status_code == 200
     assert "receipt_id" in response.json()
+
+
+def test_show_receipt_length(client):
+    lengths = [20, 30, 40, 50]
+    for length in lengths:
+        response = client.get(f"/api/v1/receipts/show/3?max_characters={length}")
+        assert response.status_code == 200
+        response_text = response.text
+
+        for line in response_text.split("\n"):
+            assert len(line) <= length
